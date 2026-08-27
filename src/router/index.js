@@ -15,6 +15,11 @@ const router = createRouter({
       component: () => import('../views/PracticeView.vue'),
     },
     {
+      path: '/practice/composition',
+      name: 'practice-composition',
+      component: () => import('../views/PracticeCompositionView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

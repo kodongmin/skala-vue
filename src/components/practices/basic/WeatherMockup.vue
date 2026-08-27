@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
 
 const weatherList = ref([
   { id: 'city_01', name: '서울', temp: 28, status: '맑음' },
@@ -10,9 +10,9 @@ const weatherList = ref([
 ])
 
 // :value / @input 으로 직접 구현한 양방향 바인딩 (한글 IME 입력 확인용)
-const cityQuery = ref('')
+const searchQuery = ref('')
 const handleQueryInput = (e) => {
-  cityQuery.value = e.target.value
+  searchQuery.value = e.target.value
 }
 
 const selectedCityInfo = ref('카드를 클릭해 보세요.')
@@ -24,28 +24,57 @@ const selectCard = (cityName) => {
 const showDetail = (cityName, status) => {
   window.alert(`${cityName}의 현재 날씨는 [${status}] 상태입니다.`)
 }
+
+// computed: 검색어가 비어있으면 전체 목록, 있으면 이름에 검색어가 포함된 도시만 필터링한다.
+const filteredWeatherList = computed(() => {
+  const keyword = searchQuery.value.trim()
+  if (!keyword) return weatherList.value
+  return weatherList.value.filter((city) => city.name.includes(keyword))
+})
+
+// 추가 computed (본인 커스터마이징): 더운 도시 개수 / 평균 기온
+const hotCityCount = computed(() => weatherList.value.filter((city) => city.temp >= 25).length)
+const averageTemp = computed(() => {
+  const total = weatherList.value.reduce((sum, city) => sum + city.temp, 0)
+  return (total / weatherList.value.length).toFixed(1)
+})
+
+// watch: 상태바 문구가 바뀔 때마다(=카드를 새로 선택할 때마다) 콘솔에 로그를 남긴다.
+watch(selectedCityInfo, (newValue, oldValue) => {
+  console.log(`🔎 [watch] 상태바 변경 감지: "${oldValue}" -> "${newValue}"`)
+})
+
+// watchEffect: 검색어(searchQuery)를 타이핑할 때마다 자동으로 추적되어 실행된다.
+watchEffect(() => {
+  console.log(`⌨️ [watchEffect] 현재 검색어: "${searchQuery.value}"`)
+})
 </script>
 
 <template>
   <div class="practice-section weather-mockup">
-    <h2>Weather Mockup 실습</h2>
+    <h2>Weather Composition 실습</h2>
 
-    <h3>1) 도시 이름 검색 (:value / @input)</h3>
+    <h3>1) 도시 이름 검색 (:value / @input + computed 필터링)</h3>
     <input
       type="text"
-      :value="cityQuery"
+      :value="searchQuery"
       @input="handleQueryInput"
       placeholder="도시 이름을 한글로 입력해보세요"
     />
     <p>
-      입력한 도시명: <strong>{{ cityQuery || '(입력 없음)' }}</strong>
+      더운 도시(25도 이상): <strong>{{ hotCityCount }}개</strong> / 평균 기온:
+      <strong>{{ averageTemp }}°C</strong>
     </p>
 
-    <h3>2) 지역별 날씨 카드 (v-for / v-if)</h3>
+    <h3>2) 지역별 날씨 카드</h3>
     <p class="status-bar">📍 상태: {{ selectedCityInfo }}</p>
-    <div class="card-grid">
+
+    <p v-if="searchQuery.trim() && filteredWeatherList.length === 0" class="empty-message">
+      "{{ searchQuery }}"와(과) 일치하는 도시가 없습니다.
+    </p>
+    <div v-else class="card-grid">
       <div
-        v-for="city in weatherList"
+        v-for="city in filteredWeatherList"
         :key="city.id"
         class="weather-card"
         @click="selectCard(city.name)"
@@ -66,6 +95,12 @@ const showDetail = (cityName, status) => {
   padding: 8px;
   background-color: #eef7f2;
   border-radius: 6px;
+}
+
+.empty-message {
+  padding: 12px;
+  color: #e17055;
+  font-weight: bold;
 }
 
 .card-grid {
