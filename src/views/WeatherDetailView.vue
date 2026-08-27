@@ -2,9 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { findCityById } from '@/data/mockWeather.js'
+import { useConfigStore } from '@/stores/configStore.js'
 
 const route = useRoute()
 const router = useRouter()
+const configStore = useConfigStore()
 
 const selectedCity = ref(null)
 
@@ -26,7 +28,11 @@ const goBack = () => {
       <h3>{{ selectedCity.name }} ({{ selectedCity.id }})</h3>
       <ul>
         <li>
-          현재 기온: <strong>{{ selectedCity.temp }}°C</strong>
+          현재 기온:
+          <strong
+            >{{ configStore.convertTemp(selectedCity.temp) }}{{ configStore.unitSymbol }}</strong
+          >
+          (섭씨 원본: {{ selectedCity.temp }}°C)
         </li>
         <li>
           날씨 상태: <strong>{{ selectedCity.status }}</strong>

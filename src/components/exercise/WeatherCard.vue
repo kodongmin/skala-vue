@@ -1,4 +1,6 @@
 <script setup>
+import { useConfigStore } from '@/stores/configStore.js'
+
 const props = defineProps({
   city: {
     type: Object,
@@ -7,6 +9,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select-card', 'click-detail'])
+
+const configStore = useConfigStore()
 
 const handleCardClick = () => {
   emit('select-card', props.city.name)
@@ -21,9 +25,9 @@ const handleDetailClick = () => {
 <template>
   <div class="weather-card" @click="handleCardClick">
     <h4>{{ city.name }}</h4>
-    <p>{{ city.temp }}°C / {{ city.status }}</p>
-    <p v-if="city.temp >= 25" class="badge hot">🔥 더움 (25도 이상)</p>
-    <p v-else class="badge cool">❄️ 선선함 (25도 미만)</p>
+    <p>{{ configStore.convertTemp(city.temp) }}{{ configStore.unitSymbol }} / {{ city.status }}</p>
+    <p v-if="city.temp >= 25" class="badge hot">🔥 더움 (25도 이상, 섭씨 기준)</p>
+    <p v-else class="badge cool">❄️ 선선함 (25도 미만, 섭씨 기준)</p>
     <button @click.stop="handleDetailClick">상세보기</button>
   </div>
 </template>

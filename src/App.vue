@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import UnitToggler from '@/components/exercise/UnitToggler.vue'
 </script>
 
 <template>
@@ -11,7 +12,9 @@ import { RouterLink, RouterView } from 'vue-router'
       <RouterLink to="/practice">Vue Syntax 실습</RouterLink>
       <RouterLink to="/practice/composition">Composition API 실습</RouterLink>
       <RouterLink to="/practice/component">Components 실습</RouterLink>
+      <RouterLink to="/practice/pinia">Pinia 실습</RouterLink>
       <RouterLink to="/about">About</RouterLink>
+      <UnitToggler />
     </nav>
   </header>
 
@@ -27,8 +30,10 @@ import { RouterLink, RouterView } from 'vue-router'
 
 nav {
   display: flex;
+  align-items: center;
   gap: 1rem;
   font-size: 0.95rem;
+  flex-wrap: wrap;
 }
 
 nav a.router-link-exact-active {
