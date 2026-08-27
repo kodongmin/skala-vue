@@ -1,18 +1,32 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { weatherList } from '@/data/mockWeather.js'
+import { cityList } from '@/data/cityList.js'
+import { fetchCurrentWeather } from '@/services/weatherApi.js'
 
 // Query String Routing 실습: /search?city=수원 형태의 주소를 그대로 지원한다.
 const route = useRoute()
 const router = useRouter()
 
 const keyword = ref(route.query.city ?? '')
+const weatherList = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
+
+onMounted(async () => {
+  try {
+    weatherList.value = await Promise.all(cityList.map((city) => fetchCurrentWeather(city)))
+  } catch (error) {
+    errorMessage.value = `날씨 데이터를 불러오지 못했습니다. (${error.message})`
+  } finally {
+    isLoading.value = false
+  }
+})
 
 const matchedCities = computed(() => {
   const target = String(route.query.city ?? '').trim()
   if (!target) return []
-  return weatherList.filter((city) => city.name.includes(target))
+  return weatherList.value.filter((city) => city.name.includes(target))
 })
 
 const handleSearch = () => {
@@ -40,12 +54,16 @@ const handleSearch = () => {
       현재 쿼리스트링: <code>{{ route.fullPath }}</code>
     </p>
 
-    <ul v-if="matchedCities.length > 0">
-      <li v-for="city in matchedCities" :key="city.id">
-        {{ city.name }} - {{ city.temp }}°C / {{ city.status }}
-      </li>
-    </ul>
-    <p v-else-if="route.query.city">"{{ route.query.city }}"와(과) 일치하는 도시가 없습니다.</p>
+    <p v-if="isLoading" class="loading">실시간 날씨 데이터를 불러오는 중입니다... ⏳</p>
+    <p v-else-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <template v-else>
+      <ul v-if="matchedCities.length > 0">
+        <li v-for="city in matchedCities" :key="city.id">
+          {{ city.name }} - {{ city.temp }}°C / {{ city.status }}
+        </li>
+      </ul>
+      <p v-else-if="route.query.city">"{{ route.query.city }}"와(과) 일치하는 도시가 없습니다.</p>
+    </template>
   </div>
 </template>
 
@@ -53,5 +71,12 @@ const handleSearch = () => {
 .hint {
   font-size: 0.85rem;
   color: #666;
+}
+.loading {
+  color: #666;
+}
+.error {
+  color: #e17055;
+  font-weight: bold;
 }
 </style>

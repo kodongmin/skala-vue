@@ -1,26 +1,47 @@
 <script setup>
-import { ref, computed, watch, watchEffect } from 'vue'
+import { ref, computed, watch, watchEffect, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 import SearchBar from '@/components/exercise/SearchBar.vue'
 import WeatherCard from '@/components/exercise/WeatherCard.vue'
-import { weatherList } from '@/data/mockWeather.js'
+import { cityList } from '@/data/cityList.js'
+import { fetchCurrentWeather } from '@/services/weatherApi.js'
 
 const router = useRouter()
+
+const weatherList = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
 
 const searchQuery = ref('')
 const selectedCityInfo = ref('카드를 클릭해 보세요.')
 
+// 5개 도시의 실시간 날씨를 동시에 요청한다. (axios.all과 동일한 효과를 Promise.all로 구현)
+const loadWeather = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+  try {
+    weatherList.value = await Promise.all(cityList.map((city) => fetchCurrentWeather(city)))
+  } catch (error) {
+    errorMessage.value = `날씨 데이터를 불러오지 못했습니다. API 키 활성화 여부를 확인하세요. (${error.message})`
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(loadWeather)
+
 const filteredWeatherList = computed(() => {
   const keyword = searchQuery.value.trim()
-  if (!keyword) return weatherList
-  return weatherList.filter((city) => city.name.includes(keyword))
+  if (!keyword) return weatherList.value
+  return weatherList.value.filter((city) => city.name.includes(keyword))
 })
 
-const hotCityCount = computed(() => weatherList.filter((city) => city.temp >= 25).length)
+const hotCityCount = computed(() => weatherList.value.filter((city) => city.temp >= 25).length)
 const averageTemp = computed(() => {
-  const total = weatherList.reduce((sum, city) => sum + city.temp, 0)
-  return (total / weatherList.length).toFixed(1)
+  if (weatherList.value.length === 0) return 0
+  const total = weatherList.value.reduce((sum, city) => sum + city.temp, 0)
+  return (total / weatherList.value.length).toFixed(1)
 })
 
 watch(selectedCityInfo, (newValue, oldValue) => {
@@ -49,34 +70,50 @@ const handleClickDetail = (city) => {
   <div class="practice-section weather-app">
     <h2>Weather App</h2>
 
-    <BaseDashboardCard title="도시 검색">
-      <SearchBar :search-query="searchQuery" @update-query="handleUpdateQuery" />
-      <p class="summary">
-        더운 도시(25도 이상): <strong>{{ hotCityCount }}개</strong> / 평균 기온:
-        <strong>{{ averageTemp }}°C</strong>
-      </p>
-    </BaseDashboardCard>
+    <p v-if="isLoading" class="loading">실시간 날씨 데이터를 불러오는 중입니다... ⏳</p>
+    <p v-else-if="errorMessage" class="error">{{ errorMessage }}</p>
 
-    <BaseDashboardCard title="지역별 날씨 현황">
-      <p class="status-bar">📍 상태: {{ selectedCityInfo }}</p>
+    <template v-else>
+      <BaseDashboardCard title="도시 검색">
+        <SearchBar :search-query="searchQuery" @update-query="handleUpdateQuery" />
+        <p class="summary">
+          더운 도시(25도 이상): <strong>{{ hotCityCount }}개</strong> / 평균 기온:
+          <strong>{{ averageTemp }}°C</strong>
+        </p>
+      </BaseDashboardCard>
 
-      <p v-if="searchQuery.trim() && filteredWeatherList.length === 0" class="empty-message">
-        "{{ searchQuery }}"와(과) 일치하는 도시가 없습니다.
-      </p>
-      <div v-else class="card-grid">
-        <WeatherCard
-          v-for="city in filteredWeatherList"
-          :key="city.id"
-          :city="city"
-          @select-card="handleSelectCard"
-          @click-detail="handleClickDetail"
-        />
-      </div>
-    </BaseDashboardCard>
+      <BaseDashboardCard title="지역별 날씨 현황">
+        <p class="status-bar">📍 상태: {{ selectedCityInfo }}</p>
+
+        <p v-if="searchQuery.trim() && filteredWeatherList.length === 0" class="empty-message">
+          "{{ searchQuery }}"와(과) 일치하는 도시가 없습니다.
+        </p>
+        <div v-else class="card-grid">
+          <WeatherCard
+            v-for="city in filteredWeatherList"
+            :key="city.id"
+            :city="city"
+            @select-card="handleSelectCard"
+            @click-detail="handleClickDetail"
+          />
+        </div>
+      </BaseDashboardCard>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.loading {
+  padding: 12px;
+  color: #666;
+}
+
+.error {
+  padding: 12px;
+  color: #e17055;
+  font-weight: bold;
+}
+
 .summary {
   font-size: 0.9rem;
   color: #555;
