@@ -20,6 +20,11 @@ const router = createRouter({
       component: () => import('../views/PracticeCompositionView.vue'),
     },
     {
+      path: '/practice/component',
+      name: 'practice-component',
+      component: () => import('../views/PracticeComponentView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting
