@@ -26,5 +26,14 @@ export default defineConfig([
 
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
+  {
+    name: 'app/custom-rules',
+    rules: {
+      eqeqeq: ['error', 'always'], // == 대신 항상 === 를 쓰도록 강제
+      'no-console': 'off', // 실습 과정의 학습용 console.log는 허용
+      'no-unused-vars': 'warn', // 선언 후 사용하지 않는 변수는 경고
+    },
+  },
+
   skipFormatting,
 ])
