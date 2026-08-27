@@ -13,6 +13,7 @@ import UnitToggler from '@/components/exercise/UnitToggler.vue'
       <RouterLink to="/practice/composition">Composition API 실습</RouterLink>
       <RouterLink to="/practice/component">Components 실습</RouterLink>
       <RouterLink to="/practice/pinia">Pinia 실습</RouterLink>
+      <RouterLink to="/practice/axios">Axios 실습</RouterLink>
       <RouterLink to="/about">About</RouterLink>
       <UnitToggler />
     </nav>
