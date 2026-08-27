@@ -1,31 +1,26 @@
 <script setup>
 import { ref, computed, watch, watchEffect } from 'vue'
-import BaseDashboardCard from './BaseDashboardCard.vue'
-import SearchBar from './SearchBar.vue'
-import WeatherCard from './WeatherCard.vue'
+import { useRouter } from 'vue-router'
+import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
+import SearchBar from '@/components/exercise/SearchBar.vue'
+import WeatherCard from '@/components/exercise/WeatherCard.vue'
+import { weatherList } from '@/data/mockWeather.js'
 
-// 1. 모든 반응형 데이터는 WeatherParent가 소유한다.
-const weatherList = ref([
-  { id: 'city_01', name: '서울', temp: 28, status: '맑음' },
-  { id: 'city_02', name: '수원', temp: 24, status: '비' },
-  { id: 'city_03', name: '부산', temp: 26, status: '구름' },
-  { id: 'city_04', name: '제주', temp: 29, status: '맑음' },
-  { id: 'city_05', name: '강릉', temp: 22, status: '흐림' },
-])
+const router = useRouter()
 
 const searchQuery = ref('')
 const selectedCityInfo = ref('카드를 클릭해 보세요.')
 
 const filteredWeatherList = computed(() => {
   const keyword = searchQuery.value.trim()
-  if (!keyword) return weatherList.value
-  return weatherList.value.filter((city) => city.name.includes(keyword))
+  if (!keyword) return weatherList
+  return weatherList.filter((city) => city.name.includes(keyword))
 })
 
-const hotCityCount = computed(() => weatherList.value.filter((city) => city.temp >= 25).length)
+const hotCityCount = computed(() => weatherList.filter((city) => city.temp >= 25).length)
 const averageTemp = computed(() => {
-  const total = weatherList.value.reduce((sum, city) => sum + city.temp, 0)
-  return (total / weatherList.value.length).toFixed(1)
+  const total = weatherList.reduce((sum, city) => sum + city.temp, 0)
+  return (total / weatherList.length).toFixed(1)
 })
 
 watch(selectedCityInfo, (newValue, oldValue) => {
@@ -36,7 +31,6 @@ watchEffect(() => {
   console.log(`⌨️ [watchEffect] 현재 검색어: "${searchQuery.value}"`)
 })
 
-// 2. 자식 컴포넌트가 쏘아 올린 이벤트를 받아 처리하는 핸들러
 const handleUpdateQuery = (value) => {
   searchQuery.value = value
 }
@@ -45,14 +39,15 @@ const handleSelectCard = (cityName) => {
   selectedCityInfo.value = `${cityName}이(가) 선택되었습니다.`
 }
 
+// window.alert() 대신 Programmatic Navigation으로 상세 페이지로 이동한다.
 const handleClickDetail = (city) => {
-  window.alert(`${city.name}의 현재 날씨는 [${city.status}] 상태입니다.`)
+  router.push('/weather/' + city.id)
 }
 </script>
 
 <template>
   <div class="practice-section weather-app">
-    <h2>Weather Component 실습 (컴포넌트 분리)</h2>
+    <h2>Weather App</h2>
 
     <BaseDashboardCard title="도시 검색">
       <SearchBar :search-query="searchQuery" @update-query="handleUpdateQuery" />

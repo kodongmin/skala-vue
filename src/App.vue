@@ -7,6 +7,7 @@ import { RouterLink, RouterView } from 'vue-router'
     <h1>Skala-Vue</h1>
     <nav>
       <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/search">도시 검색</RouterLink>
       <RouterLink to="/practice">Vue Syntax 실습</RouterLink>
       <RouterLink to="/practice/composition">Composition API 실습</RouterLink>
       <RouterLink to="/practice/component">Components 실습</RouterLink>
