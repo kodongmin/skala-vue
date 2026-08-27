@@ -3,6 +3,8 @@ import { RouterLink } from 'vue-router'
 
 // Vite 환경 변수 참조: 빌드 모드(--mode)에 따라 .env.staging / .env.production 값이 주입된다.
 const buildMode = import.meta.env.VITE_APP_MODE ?? '개발 모드 (dev)'
+console.log('현재 빌드 모드:', import.meta.env.MODE)
+console.log('현재 API URL:', import.meta.env.VITE_API_URL)
 </script>
 
 <template>
