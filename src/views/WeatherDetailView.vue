@@ -41,67 +41,57 @@ const goBack = () => {
   <div class="practice-section detail-view">
     <h2>지역별 상세 기상관측 정보</h2>
 
-    <p v-if="isLoading" class="loading">실시간 날씨 데이터를 불러오는 중입니다... ⏳</p>
+    <el-alert
+      v-if="isLoading"
+      title="실시간 날씨 데이터를 불러오는 중입니다... ⏳"
+      type="info"
+      :closable="false"
+    />
 
-    <div v-else-if="cityNotFound" class="not-found">
-      <p>"{{ route.params.cityId }}" 에 해당하는 도시 정보를 찾을 수 없습니다.</p>
+    <el-alert
+      v-else-if="cityNotFound"
+      :title="`&quot;${route.params.cityId}&quot; 에 해당하는 도시 정보를 찾을 수 없습니다.`"
+      type="warning"
+      :closable="false"
+    />
+
+    <el-alert v-else-if="errorMessage" :title="errorMessage" type="error" :closable="false" />
+
+    <el-card v-else-if="selectedCity" class="detail-card" shadow="never">
+      <template #header>
+        <span>{{ selectedCity.name }} ({{ selectedCity.id }})</span>
+      </template>
+      <el-descriptions :column="1" border>
+        <el-descriptions-item label="현재 기온">
+          {{ configStore.convertTemp(selectedCity.temp) }}{{ configStore.unitSymbol }}
+          <span class="raw-temp">(섭씨 원본: {{ selectedCity.temp }}°C)</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="날씨 상태">{{ selectedCity.status }}</el-descriptions-item>
+        <el-descriptions-item label="습도">{{ selectedCity.humidity }}%</el-descriptions-item>
+        <el-descriptions-item label="풍속">{{ selectedCity.windSpeed }} m/s</el-descriptions-item>
+      </el-descriptions>
+    </el-card>
+
+    <div class="nav-buttons">
+      <el-button @click="goBack">이전 화면으로</el-button>
+      <RouterLink to="/"><el-button type="primary">메인 대시보드로 돌아가기</el-button></RouterLink>
     </div>
-
-    <p v-else-if="errorMessage" class="error">{{ errorMessage }}</p>
-
-    <div v-else-if="selectedCity" class="detail-card">
-      <h3>{{ selectedCity.name }} ({{ selectedCity.id }})</h3>
-      <ul>
-        <li>
-          현재 기온:
-          <strong
-            >{{ configStore.convertTemp(selectedCity.temp) }}{{ configStore.unitSymbol }}</strong
-          >
-          (섭씨 원본: {{ selectedCity.temp }}°C)
-        </li>
-        <li>
-          날씨 상태: <strong>{{ selectedCity.status }}</strong>
-        </li>
-        <li>
-          습도: <strong>{{ selectedCity.humidity }}%</strong>
-        </li>
-        <li>
-          풍속: <strong>{{ selectedCity.windSpeed }} m/s</strong>
-        </li>
-      </ul>
-    </div>
-
-    <button @click="goBack">이전 화면으로</button>
-    <RouterLink to="/">메인 대시보드로 돌아가기</RouterLink>
   </div>
 </template>
 
 <style scoped>
-.loading {
-  padding: 12px;
-  color: #666;
-}
-
 .detail-card {
-  background-color: #eef7f2;
-  border-radius: 8px;
-  padding: 16px;
   margin-bottom: 16px;
 }
 
-.detail-card ul {
-  list-style: none;
-  padding: 0;
+.raw-temp {
+  color: #999;
+  font-size: 0.85rem;
 }
 
-.detail-card li {
-  padding: 4px 0;
-}
-
-.not-found,
-.error {
-  color: #e17055;
-  font-weight: bold;
-  margin-bottom: 16px;
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 </style>

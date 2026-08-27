@@ -8,11 +8,18 @@ const { unit, unitSymbol, isDarkMode, themeLabel } = storeToRefs(configStore)
 
 <template>
   <div class="unit-toggler">
-    <button type="button" @click="configStore.toggleUnit">
-      온도 단위: {{ unit === 'celsius' ? '섭씨' : '화씨' }} ({{ unitSymbol }})
-    </button>
-    <button type="button" @click="configStore.toggleDarkMode">{{ themeLabel }} (표시용)</button>
-    <span v-if="isDarkMode" class="dark-badge">🌙</span>
+    <el-tag type="info">{{ unit === 'celsius' ? '섭씨' : '화씨' }} ({{ unitSymbol }})</el-tag>
+    <el-switch
+      :model-value="unit === 'fahrenheit'"
+      inline-prompt
+      active-text="℉"
+      inactive-text="℃"
+      @change="configStore.toggleUnit"
+    />
+    <el-button size="small" @click="configStore.toggleDarkMode"
+      >{{ themeLabel }} (표시용)</el-button
+    >
+    <span v-if="isDarkMode">🌙</span>
   </div>
 </template>
 
@@ -23,17 +30,5 @@ const { unit, unitSymbol, isDarkMode, themeLabel } = storeToRefs(configStore)
   gap: 8px;
   margin-left: auto;
   font-size: 0.85rem;
-}
-
-.unit-toggler button {
-  padding: 4px 10px;
-  border: 1px solid #ccc;
-  border-radius: 999px;
-  background-color: white;
-  cursor: pointer;
-}
-
-.unit-toggler button:hover {
-  background-color: #f0f0f0;
 }
 </style>

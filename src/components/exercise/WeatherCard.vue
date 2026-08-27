@@ -23,42 +23,20 @@ const handleDetailClick = () => {
 </script>
 
 <template>
-  <div class="weather-card" @click="handleCardClick">
+  <el-card class="weather-card" shadow="hover" @click="handleCardClick">
     <h4>{{ city.name }}</h4>
     <p>{{ configStore.convertTemp(city.temp) }}{{ configStore.unitSymbol }} / {{ city.status }}</p>
-    <p v-if="city.temp >= 25" class="badge hot">🔥 더움 (25도 이상, 섭씨 기준)</p>
-    <p v-else class="badge cool">❄️ 선선함 (25도 미만, 섭씨 기준)</p>
-    <button @click.stop="handleDetailClick">상세보기</button>
-  </div>
+    <el-tag v-if="city.temp >= 25" type="danger">🔥 더움 (25도 이상, 섭씨 기준)</el-tag>
+    <el-tag v-else type="primary">❄️ 선선함 (25도 미만, 섭씨 기준)</el-tag>
+    <br />
+    <el-button size="small" style="margin-top: 8px" @click.stop="handleDetailClick"
+      >상세보기</el-button
+    >
+  </el-card>
 </template>
 
 <style scoped>
 .weather-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
   cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-  background-color: white;
-}
-
-.weather-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
-}
-
-.badge {
-  font-size: 0.85rem;
-  font-weight: bold;
-}
-
-.badge.hot {
-  color: #e17055;
-}
-
-.badge.cool {
-  color: #0984e3;
 }
 </style>

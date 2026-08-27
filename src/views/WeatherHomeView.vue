@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, watchEffect, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 import SearchBar from '@/components/exercise/SearchBar.vue'
 import WeatherCard from '@/components/exercise/WeatherCard.vue'
@@ -58,6 +59,7 @@ const handleUpdateQuery = (value) => {
 
 const handleSelectCard = (cityName) => {
   selectedCityInfo.value = `${cityName}이(가) 선택되었습니다.`
+  ElMessage.success(`${cityName} 카드를 선택했습니다.`)
 }
 
 // window.alert() 대신 Programmatic Navigation으로 상세 페이지로 이동한다.
@@ -70,8 +72,13 @@ const handleClickDetail = (city) => {
   <div class="practice-section weather-app">
     <h2>Weather App</h2>
 
-    <p v-if="isLoading" class="loading">실시간 날씨 데이터를 불러오는 중입니다... ⏳</p>
-    <p v-else-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <el-alert
+      v-if="isLoading"
+      title="실시간 날씨 데이터를 불러오는 중입니다... ⏳"
+      type="info"
+      :closable="false"
+    />
+    <el-alert v-else-if="errorMessage" :title="errorMessage" type="error" :closable="false" />
 
     <template v-else>
       <BaseDashboardCard title="도시 검색">
@@ -103,17 +110,6 @@ const handleClickDetail = (city) => {
 </template>
 
 <style scoped>
-.loading {
-  padding: 12px;
-  color: #666;
-}
-
-.error {
-  padding: 12px;
-  color: #e17055;
-  font-weight: bold;
-}
-
 .summary {
   font-size: 0.9rem;
   color: #555;

@@ -42,27 +42,39 @@ const handleSearch = () => {
       주소창에 <code>/search?city=수원</code> 처럼 직접 입력해도 동일하게 동작한다.
     </p>
 
-    <input
-      v-model="keyword"
-      type="text"
-      placeholder="도시 이름을 입력하세요"
-      @keyup.enter="handleSearch"
-    />
-    <button @click="handleSearch">검색</button>
+    <div class="search-row">
+      <el-input
+        v-model="keyword"
+        placeholder="도시 이름을 입력하세요"
+        clearable
+        @keyup.enter="handleSearch"
+      />
+      <el-button type="primary" @click="handleSearch">검색</el-button>
+    </div>
 
     <p>
       현재 쿼리스트링: <code>{{ route.fullPath }}</code>
     </p>
 
-    <p v-if="isLoading" class="loading">실시간 날씨 데이터를 불러오는 중입니다... ⏳</p>
-    <p v-else-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <el-alert
+      v-if="isLoading"
+      title="실시간 날씨 데이터를 불러오는 중입니다... ⏳"
+      type="info"
+      :closable="false"
+    />
+    <el-alert v-else-if="errorMessage" :title="errorMessage" type="error" :closable="false" />
     <template v-else>
-      <ul v-if="matchedCities.length > 0">
-        <li v-for="city in matchedCities" :key="city.id">
-          {{ city.name }} - {{ city.temp }}°C / {{ city.status }}
-        </li>
-      </ul>
-      <p v-else-if="route.query.city">"{{ route.query.city }}"와(과) 일치하는 도시가 없습니다.</p>
+      <div v-if="matchedCities.length > 0" class="result-tags">
+        <el-tag v-for="city in matchedCities" :key="city.id" size="large"
+          >{{ city.name }} - {{ city.temp }}°C / {{ city.status }}</el-tag
+        >
+      </div>
+      <el-alert
+        v-else-if="route.query.city"
+        :title="`&quot;${route.query.city}&quot;와(과) 일치하는 도시가 없습니다.`"
+        type="warning"
+        :closable="false"
+      />
     </template>
   </div>
 </template>
@@ -72,11 +84,15 @@ const handleSearch = () => {
   font-size: 0.85rem;
   color: #666;
 }
-.loading {
-  color: #666;
+.search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
 }
-.error {
-  color: #e17055;
-  font-weight: bold;
+.result-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
 }
 </style>

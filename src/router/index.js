@@ -49,6 +49,11 @@ const router = createRouter({
       name: 'practice-axios',
       component: () => import('../views/PracticeAxiosView.vue'),
     },
+    {
+      path: '/practice/ui-library',
+      name: 'practice-ui-library',
+      component: () => import('../views/PracticeUiLibraryView.vue'),
+    },
     // Catch-all Route: 위 어떤 경로와도 매칭되지 않는 나머지 모든 요청을 404 페이지로 넘긴다.
     // 반드시 라우트 목록의 가장 마지막에 위치해야 한다.
     {
